@@ -14,6 +14,6 @@ RUN apt-get update && \
 ## INJECT_PATCH_INSTRUCTION ##
 RUN git clone https://github.com/jgruberf5/ibmcloud_test_harness_report_service.git
 
-RUN pip3 install Flask requests
+RUN pip3 install -r /ibmcloud_test_harness_report_service/requirements.txt
 
 ENTRYPOINT [ "/ibmcloud_test_harness_report_service/server.py" ]
