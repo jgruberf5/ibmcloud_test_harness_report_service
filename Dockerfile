@@ -16,4 +16,6 @@ RUN git clone https://github.com/jgruberf5/ibmcloud_test_harness_report_service.
 
 RUN pip3 install -r /ibmcloud_test_harness_report_service/requirements.txt
 
+ENV LISTEN_PORT=5000
+
 ENTRYPOINT [ "/ibmcloud_test_harness_report_service/server.py" ]

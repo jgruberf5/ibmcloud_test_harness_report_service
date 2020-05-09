@@ -153,4 +153,6 @@ def report_on_test(test_id):
             abort(404)
 
 
-app.run(host='0.0.0.0', threaded=True)
+if __name__ == '__main__':
+    LISTEN_PORT = os.getenv('LISTEN_PORT', '5000')
+    app.run(host='0.0.0.0', port=int(LISTEN_PORT), threaded=True)

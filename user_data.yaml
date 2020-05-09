@@ -1,0 +1,27 @@
+#cloud-config
+packages:
+  - python3-pip
+  - python3-setuptools
+  - python3-wheel
+  - git
+write_files:
+  - content: |
+      [Unit]
+      Description=Test Report Server
+      After=network.target
+      StartLimitIntervalSec=0
+      [Service]
+      Type=simple
+      Restart=never
+      RestartSec=1
+      User=root
+      ExecStart=/var/lib/ibmcloud_test_harness_report_service/server.py
+      [Install]
+      WantedBy=multi-user.target
+    path: /etc/systemd/system/report_server.service
+    owner: root:root
+    permissions: '0755'
+rumcmd:
+  - git clone https://github.com/jgruberf5/ibmcloud_test_harness_report_service.git /var/lib/ibmcloud_test_harness_report_service
+  - pip3 install -r /var/lib/ibmcloud_test_harness_report_service/requirements.txt
+  - systemctl start report_server
