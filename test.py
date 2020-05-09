@@ -93,13 +93,17 @@ def run_tests():
     time.sleep(30)
     requests.post("%s/stop/%s" % (base_url, one_nic_uuid),
                   headers=headers, data=json.dumps(one_nic_stop))
-    time.sleep(30)
+    time.sleep(10)
     requests.post("%s/stop/%s" % (base_url, two_nic_uuid),
                   headers=headers, data=json.dumps(two_nic_stop))
-    time.sleep(30)
+    time.sleep(10)
     requests.post("%s/stop/%s" % (base_url, three_nic_uuid),
                   headers=headers, data=json.dumps(three_nic_stop))
-    
+    time.sleep(30)
+    requests.delete("%s/report/%s" % (base_url, one_nic_uuid))
+    requests.delete("%s/report/%s" % (base_url, two_nic_uuid))
+    requests.delete("%s/report/%s" % (base_url, three_nic_uuid))
+
 
 if __name__ == "__main__":
     run_tests()
