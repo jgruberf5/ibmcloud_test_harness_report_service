@@ -12,17 +12,17 @@ write_files:
       StartLimitIntervalSec=0
       [Service]
       Type=simple
-      Restart=never
+      Restart=always
       RestartSec=1
       User=root
       Environment=LISTEN_PORT=80
       ExecStart=/var/lib/ibmcloud_test_harness_report_service/server.py
       [Install]
       WantedBy=multi-user.target
-    path: /etc/systemd/system/report_server.service
+    path: /etc/systemd/system/report-server.service
     owner: root:root
     permissions: '0755'
-rumcmd:
-  - git clone https://github.com/jgruberf5/ibmcloud_test_harness_report_service.git /var/lib/ibmcloud_test_harness_report_service
-  - pip3 install -r /var/lib/ibmcloud_test_harness_report_service/requirements.txt
-  - systemctl start report_server
+runcmd:
+  - /usr/bin/git clone https://github.com/jgruberf5/ibmcloud_test_harness_report_service.git /var/lib/ibmcloud_test_harness_report_service
+  - /usr/bin/pip3 install -r /var/lib/ibmcloud_test_harness_report_service/requirements.txt
+  - /bin/systemctl start report-server
