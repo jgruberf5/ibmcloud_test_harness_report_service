@@ -19,6 +19,7 @@
 import uuid
 import json
 import time
+import datetime
 import requests
 import sys
 
@@ -76,6 +77,7 @@ three_nic_stop = {
     'status': 'SUCCESS'
 }
 
+
 def run_tests():
     base_url = 'http://localhost:5000'
     headers = {
@@ -84,13 +86,31 @@ def run_tests():
     one_nic_uuid = str(uuid.uuid4())
     requests.post("%s/start/%s" % (base_url, one_nic_uuid),
                   headers=headers, data=json.dumps(one_nic_start))
+    time.sleep(10)
     two_nic_uuid = str(uuid.uuid4())
     requests.post("%s/start/%s" % (base_url, two_nic_uuid),
                   headers=headers, data=json.dumps(two_nic_start))
+    time.sleep(10)
     three_nic_uuid = str(uuid.uuid4())
     requests.post("%s/start/%s" % (base_url, three_nic_uuid),
                   headers=headers, data=json.dumps(three_nic_start))
-    time.sleep(30)
+    now = time.time()
+    update = {
+        'terraform_result_code': '0',
+        'terraform_output':'It worked!',
+        'terraform_completed_at': now,
+        'terraform_completed_at_readable': datetime.datetime.fromtimestamp(
+            now).strftime('%Y-%m-%d %H:%M:%S')
+    }
+    requests.put("%s/report/%s" % (base_url, one_nic_uuid),
+                 headers=headers, data=json.dumps(update))
+    time.sleep(10)
+    requests.put("%s/report/%s" % (base_url, two_nic_uuid),
+                 headers=headers, data=json.dumps(update))
+    time.sleep(10)
+    requests.put("%s/report/%s" % (base_url, three_nic_uuid),
+                 headers=headers, data=json.dumps(update))
+    time.sleep(60)
     requests.post("%s/stop/%s" % (base_url, one_nic_uuid),
                   headers=headers, data=json.dumps(one_nic_stop))
     time.sleep(10)
@@ -99,7 +119,7 @@ def run_tests():
     time.sleep(10)
     requests.post("%s/stop/%s" % (base_url, three_nic_uuid),
                   headers=headers, data=json.dumps(three_nic_stop))
-    time.sleep(30)
+    time.sleep(300)
     requests.delete("%s/report/%s" % (base_url, one_nic_uuid))
     requests.delete("%s/report/%s" % (base_url, two_nic_uuid))
     requests.delete("%s/report/%s" % (base_url, three_nic_uuid))

@@ -56,7 +56,7 @@ def add_report(report_id, report):
                 reports = {}
                 reports[report_id] = report
                 reports_file.write(json.dumps(reports, sort_keys=True,
-                                         indent=4, separators=(',', ': ')))
+                                              indent=4, separators=(',', ': ')))
     else:
         with FileLock(LOCK_FILE):
             reports_json = None
@@ -67,7 +67,7 @@ def add_report(report_id, report):
                 reports[report_id] = report
                 with open(REPORT_FILE, 'w') as reports_file:
                     reports_file.write(json.dumps(reports, sort_keys=True,
-                                             indent=4, separators=(',', ': ')))
+                                                  indent=4, separators=(',', ': ')))
 
 
 def delete_report(report_id):
@@ -84,7 +84,7 @@ def delete_report(report_id):
                     pass
                 with open(REPORT_FILE, 'w') as reports_file:
                     reports_file.write(json.dumps(reports, sort_keys=True,
-                                             indent=4, separators=(',', ': ')))
+                                                  indent=4, separators=(',', ': ')))
 
 
 def delete_reports():
@@ -127,28 +127,45 @@ def stop_test(test_id):
         abort(404)
 
 
-@app.route('/report', methods=['GET','DELETE'])
+@app.route('/report', methods=['GET', 'DELETE'])
 def test_reports():
     if request.method == 'DELETE':
         delete_reports()
-        return app.response_class(response='', status=200, mimetype='application/json')
+        return app.response_class(response='',
+                                  status=200, mimetype='application/json')
     else:
         reports = read_reports_json()
-        return app.response_class(response=reports, status=200, mimetype='application/json')
+        return app.response_class(response=reports,
+                                  status=200, mimetype='application/json')
 
 
-@app.route('/report/<uuid:test_id>', methods=['GET','DELETE'])
+@app.route('/report/<uuid:test_id>', methods=['GET', 'DELETE', 'PUT'])
 def report_on_test(test_id):
     test_id = str(test_id)
     if request.method == 'DELETE':
         delete_report(test_id)
-        return app.response_class(response='', status=200, mimetype='application/json')
+        return app.response_class(response='',
+                                  status=200, mimetype='application/json')
+    elif request.method == 'PUT':
+        reports = read_reports()
+        test_id = str(test_id)
+        if test_id in reports:
+            report = reports[test_id]
+            update = request.json
+            for prop in update:
+                report[prop] = update[prop]
+            add_report(test_id, report)
+            return app.response_class(response=json.dumps(report),
+                                      status=200, content_type='application/json')
+        else:
+            abort(404)
     else:
         reports = read_reports()
         if test_id in reports:
             json_report = json.dumps(reports[test_id], sort_keys=True,
-                                                indent=4, separators=(',', ': '))
-            return app.response_class(response=json_report, status=200, mimetype='application/json')
+                                     indent=4, separators=(',', ': '))
+            return app.response_class(response=json_report,
+                                      status=200, mimetype='application/json')
         else:
             abort(404)
 
