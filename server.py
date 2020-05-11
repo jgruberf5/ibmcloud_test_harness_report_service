@@ -97,9 +97,9 @@ def delete_reports():
 def start_test(test_id):
     test_id = str(test_id)
     report = request.json
-    report['start_time'] = time.time()
-    report['readable_start_time'] = datetime.datetime.fromtimestamp(
-        report['start_time']).strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.datetime.utcnow()
+    report['start_time'] = now.timestamp()
+    report['readable_start_time'] = now.strftime('%Y-%m-%d %H:%M:%S UTC')
     report['stop_time'] = None
     report['readable_stop_time'] = None
     report['duration'] = 0
@@ -115,11 +115,10 @@ def stop_test(test_id):
     if test_id in reports:
         report = reports[test_id]
         results = request.json
-        done_time = time.time()
-        report['stop_time'] = done_time
-        report['readable_stop_time'] = datetime.datetime.fromtimestamp(
-            report['stop_time']).strftime('%Y-%m-%d %H:%M:%S')
-        report['duration'] = (done_time - report['start_time'])
+        now = datetime.datetime.utcnow()
+        report['stop_time'] = now.timestamp()
+        report['readable_stop_time'] = now.strftime('%Y-%m-%d %H:%M:%S UTC')
+        report['duration'] = (now.timestamp() - report['start_time'])
         report['results'] = results
         add_report(test_id, report)
         return app.response_class(status=200)

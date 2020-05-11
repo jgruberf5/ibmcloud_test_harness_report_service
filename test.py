@@ -94,13 +94,12 @@ def run_tests():
     three_nic_uuid = str(uuid.uuid4())
     requests.post("%s/start/%s" % (base_url, three_nic_uuid),
                   headers=headers, data=json.dumps(three_nic_start))
-    now = time.time()
+    now = datetime.datetime.utcnow()
     update = {
         'terraform_result_code': '0',
         'terraform_output':'It worked!',
-        'terraform_completed_at': now,
-        'terraform_completed_at_readable': datetime.datetime.fromtimestamp(
-            now).strftime('%Y-%m-%d %H:%M:%S')
+        'terraform_completed_at': now.timestamp(),
+        'terraform_completed_at_readable': now.strftime('%Y-%m-%d %H:%M:%S UTC')
     }
     requests.put("%s/report/%s" % (base_url, one_nic_uuid),
                  headers=headers, data=json.dumps(update))
