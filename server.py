@@ -244,13 +244,13 @@ def summary():
     num_success = len(success_reports)
     num_failed = len(failed_reports)
     return_data = {
-        'total_reports': total_reports,
-        'running_reports': running_reports,
-        'success_reports': num_success,
+        'total_tests': total_reports,
+        'running_tests': running_reports,
+        'success_tests': num_success,
         'success_avg_duration': success_durations / len(success_reports),
         'success_duration_min': success_duration_min,
         'success_duration_max': success_duration_max,
-        'failed_reports': num_failed,
+        'failed_tests': num_failed,
         'failed_avg_duration': failed_durations / len(failed_reports),
         'failed_duration_min': failed_duration_min,
         'failer_duration_max': failed_duration_max,
