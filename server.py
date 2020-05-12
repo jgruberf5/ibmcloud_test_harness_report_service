@@ -209,6 +209,8 @@ def summary():
     failed_durations = 0
     failed_duration_min = 0
     failed_duration_max = 0
+    failed_in_terraform = 0
+    failed_by_timeout = 0
     for report in reports:
         report_zone = reports[report]['zone']
         if report_zone not in zones:
@@ -233,6 +235,10 @@ def summary():
                 if duration < success_duration_min or success_duration_min == 0:
                     success_duration_min = duration
             else:
+                if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] > 0:
+                    failed_in_terraform = failed_in_terraform + 1
+                if 'test timedout' in reports[report]['results']:
+                    failed_by_timeout = failed_by_timeout + 1
                 failed_reports.append(report)
                 zones[report_zone]['failed'] = zones[report_zone]['failed'] + 1
                 duration = float(reports[report]['duration'])
@@ -255,7 +261,9 @@ def summary():
         'failed_tests': num_failed,
         'failed_avg_duration': failed_durations / len(failed_reports),
         'failed_duration_min': failed_duration_min,
-        'failer_duration_max': failed_duration_max,
+        'failed_duration_max': failed_duration_max,
+        'failed_in_terraform': failed_in_terraform,
+        'failed_by_timeout': failed_by_timeout,
         'zones_summary': zones
     }
     json_report = json.dumps(return_data, sort_keys=True,
