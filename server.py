@@ -115,10 +115,11 @@ def stop_test(test_id):
     if test_id in reports:
         report = reports[test_id]
         now = datetime.datetime.utcnow()
+        results = json.loads(request.data.decode('utf-8'))
         report['stop_time'] = now.timestamp()
         report['readable_stop_time'] = now.strftime('%Y-%m-%d %H:%M:%S UTC')
         report['duration'] = (now.timestamp() - report['start_time'])
-        report['results'] = request.data
+        report['results'] = results
         add_report(test_id, report)
         return app.response_class(status=200)
     else:
