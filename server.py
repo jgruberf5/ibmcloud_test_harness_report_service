@@ -219,8 +219,8 @@ def summary():
             }
         if reports[report]['duration'] == 0:
             now = datetime.datetime.utcnow()
-            duration = now.timestamp() - reports[report]['start_time']
-            running_reports.append("%s - %s seconds" % (report, str(duration)))
+            duration = int(now.timestamp() - reports[report]['start_time'])
+            running_reports.append("%s - %s seconds - %s - %s" % (report, str(duration), reports[report]['type'], reports[report]['zone']))
             zones[report_zone]['running'] = zones[report_zone]['running'] + 1
         else:
             if 'status' in reports[report]['results'] and reports[report]['results']['status'] == 'SUCCESS':
