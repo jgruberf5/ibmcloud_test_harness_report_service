@@ -200,6 +200,8 @@ def failed_reports():
 def summary():
     reports = read_reports()
     zones = {}
+    ttypes = {}
+    imagez = {}
     running_reports = []
     success_reports = []
     failed_reports = []
@@ -221,6 +223,20 @@ def summary():
                 'success': 0,
                 'failed': 0
             }
+        report_type = reports[report]['type']
+        if report_type not in ttypes:
+            ttypes[report_type] = {
+                'running': 0,
+                'success': 0,
+                'failed': 0
+            }
+        image_name = reports[report]['image_name']
+        if image_name not in imagez:
+            imagez[image_name] = {
+                'running': 0,
+                'success': 0,
+                'failed': 0
+            }
         if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 0:
             terraform_completed = terraform_completed + 1
             terraform_seconds = reports[report]['terraform_apply_completed_at'] - reports[report]['start_time']
@@ -230,10 +246,14 @@ def summary():
             duration = int(now.timestamp() - reports[report]['start_time'])
             running_reports.append("%s - %s seconds - %s - %s" % (report, str(duration), reports[report]['type'], reports[report]['zone']))
             zones[report_zone]['running'] = zones[report_zone]['running'] + 1
+            ttypes[report_type]['running'] = ttypes[report_type]['running'] + 1
+            imagez[image_name]['running'] = imagez[image_name]['running'] + 1
         else:
             if 'status' in reports[report]['results'] and reports[report]['results']['status'] == 'SUCCESS':
                 success_reports.append(report)
                 zones[report_zone]['success'] = zones[report_zone]['success'] + 1
+                ttypes[report_type]['success'] = ttypes[report_type]['success'] + 1
+                imagez[image_name]['success'] = imagez[image_name]['success'] + 1
                 duration = float(reports[report]['duration'])
                 success_durations = success_durations + duration
                 if duration > success_duration_max:
@@ -248,6 +268,8 @@ def summary():
                     failed_by_timeout = failed_by_timeout + 1
                 failed_reports.append(report)
                 zones[report_zone]['failed'] = zones[report_zone]['failed'] + 1
+                ttypes[report_type]['failed'] = ttypes[report_type]['failed'] + 1
+                imagez[image_name]['failed'] = imagez[image_name]['failed'] + 1
                 duration = float(reports[report]['duration'])
                 failed_durations = failed_durations + duration
                 if duration > failed_duration_max:
@@ -273,7 +295,9 @@ def summary():
         'failed_by_timeout': failed_by_timeout,
         'terraform_completed': terraform_completed,
         'terraform_completed_avg': terraform_completed_seconds / terraform_completed,
-        'zones_summary': zones
+        'zones_summary': zones,
+        'test_types': ttypes,
+        'image_names': imagez
     }
     json_report = json.dumps(return_data, sort_keys=True,
                              indent=4, separators=(',', ': '))
