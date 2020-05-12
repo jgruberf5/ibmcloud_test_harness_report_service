@@ -211,6 +211,8 @@ def summary():
     failed_duration_max = 0
     failed_in_terraform = 0
     failed_by_timeout = 0
+    terraform_completed = 0
+    terraform_completed_seconds = 0
     for report in reports:
         report_zone = reports[report]['zone']
         if report_zone not in zones:
@@ -219,6 +221,10 @@ def summary():
                 'success': 0,
                 'failed': 0
             }
+        if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 0:
+            terraform_completed = terraform_completed + 1
+            terraform_seconds = reports[report]['terraform_apply_completed_at'] - reports[report]['start_time']
+            terraform_completed_seconds = terraform_completed_seconds + terraform_seconds
         if reports[report]['duration'] == 0:
             now = datetime.datetime.utcnow()
             duration = int(now.timestamp() - reports[report]['start_time'])
@@ -234,6 +240,7 @@ def summary():
                     success_duration_max = duration
                 if duration < success_duration_min or success_duration_min == 0:
                     success_duration_min = duration
+                
             else:
                 if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] > 0:
                     failed_in_terraform = failed_in_terraform + 1
@@ -264,6 +271,8 @@ def summary():
         'failed_duration_max': failed_duration_max,
         'failed_in_terraform': failed_in_terraform,
         'failed_by_timeout': failed_by_timeout,
+        'terraform_completed': terraform_completed,
+        'terraform_completed_avg': terraform_completed_seconds / terraform_completed,
         'zones_summary': zones
     }
     json_report = json.dumps(return_data, sort_keys=True,
