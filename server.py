@@ -247,11 +247,11 @@ def summary():
         'total_reports': total_reports,
         'running_reports': running_reports,
         'success_reports': num_success,
-        'success_avg_duration': 0,
+        'success_avg_duration': success_durations / len(success_reports),
         'success_duration_min': success_duration_min,
         'success_duration_max': success_duration_max,
         'failed_reports': num_failed,
-        'failed_avg_duration': 0,
+        'failed_avg_duration': failed_durations / len(failed_reports),
         'failed_duration_min': failed_duration_min,
         'failer_duration_max': failed_duration_max,
         'zones_summary': zones
