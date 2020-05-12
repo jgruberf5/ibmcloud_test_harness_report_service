@@ -169,6 +169,99 @@ def report_on_test(test_id):
             abort(404)
 
 
+@app.route('/running', methods=['GET'])
+def running_reports():
+    reports = read_reports()
+    return_reports = []
+    for report in reports:
+        if reports[report]['duration'] == 0:
+            return_reports.append(reports[report])
+    json_report = json.dumps(return_reports, sort_keys=True,
+                             indent=4, separators=(',', ': '))
+    return app.response_class(response=json_report,
+                              status=200, mimetype='application/json')
+
+
+@app.route('/failed', methods=['GET'])
+def failed_reports():
+    reports = read_reports()
+    return_reports = []
+    for report in reports:
+        if reports[report]['duration'] > 0:
+            if 'status' not in reports[report]['results'] or not reports[report]['results']['status'] == 'SUCCESS':
+                return_reports.append(reports[report])
+    json_report = json.dumps(return_reports, sort_keys=True,
+                             indent=4, separators=(',', ': '))
+    return app.response_class(response=json_report,
+                              status=200, mimetype='application/json')
+
+
+@app.route('/summary', methods=['GET'])
+def summary():
+    reports = read_reports()
+    zones = {}
+    running_reports = []
+    success_reports = []
+    failed_reports = []
+    success_durations = 0
+    success_duration_min = 0
+    success_duration_max = 0
+    failed_durations = 0
+    failed_duration_min = 0
+    failed_duration_max = 0
+    for report in reports:
+        report_zone = reports[report]['zone']
+        if report_zone not in zones:
+            zones[report_zone] = {
+                'running': 0,
+                'success': 0,
+                'failed': 0
+            }
+        if reports[report]['duration'] == 0:
+            running_reports.append(report)
+            zones[report_zone]['running'] = zones[report_zone]['running'] + 1
+        else:
+            if 'status' in reports[report]['results'] and reports[report]['results']['status'] == 'SUCCESS':
+                success_reports.append(report)
+                zones[report_zone]['success'] = zones[report_zone]['success'] + 1
+                duration = float(reports[report]['duration'])
+                success_durations = success_durations + duration
+                if duration > success_duration_max:
+                    success_duration_max = duration
+                if duration < success_duration_min or success_duration_min == 0:
+                    success_duration_min = duration
+            else:
+                failed_reports.append(report)
+                zones[report_zone]['failed'] = zones[report_zone]['failed'] + 1
+                duration = float(reports[report]['duration'])
+                failed_durations = failed_durations + duration
+                if duration > failed_duration_max:
+                    failed_duration_max = duration
+                if duration < failed_duration_min or failed_duration_min == 0:
+                    failed_duration_min = duration
+    total_reports = len(reports)
+    num_running = len(running_reports)
+    num_success = len(success_reports)
+    num_failed = len(failed_reports)
+    return_data = {
+        'total_reports': total_reports,
+        'running_reports': running_reports,
+        'success_reports': num_success,
+        'success_avg_duration': 0,
+        'success_duration_min': success_duration_min,
+        'success_duration_max': success_duration_max,
+        'failed_reports': num_failed,
+        'failed_avg_duration': 0,
+        'failed_duration_min': failed_duration_min,
+        'failer_duration_max': failed_duration_max,
+        'zones_summary': zones
+    }
+    json_report = json.dumps(return_data, sort_keys=True,
+                             indent=4, separators=(',', ': '))
+    return app.response_class(response=json_report,
+                              status=200, mimetype='application/json')
+
+
 if __name__ == '__main__':
     LISTEN_PORT = os.getenv('LISTEN_PORT', '5000')
     app.run(host='0.0.0.0', port=int(LISTEN_PORT), threaded=True)
