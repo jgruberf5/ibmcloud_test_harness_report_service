@@ -201,6 +201,8 @@ def query_attributes():
     qtype = request.args.get('type')
     qimage = request.args.get('image')
     qzone = request.args.get('zone')
+    qfailed = request.args.get('failed')
+    qsuccess = request.args.get('success')
     reports = read_reports()
     return_reports = []
     for report in reports:
@@ -210,6 +212,10 @@ def query_attributes():
         if qimage and not reports[report]['image_name'].startswith(qimage):
             add_report = False
         if qzone and not reports[report]['zone'].startswith(qzone):
+            add_report = False
+        if qfailed and not ('status' not in reports[report]['results'] or not reports[report]['results']['status'] == 'SUCCESS'):
+            add_report = False
+        if qsuccess and not ('status' in reports[report]['results'] and reports[report]['results']['status'] == 'SUCCESS'):
             add_report = False
         if add_report:
             return_reports.append(reports[report])
