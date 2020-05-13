@@ -196,6 +196,29 @@ def failed_reports():
                               status=200, mimetype='application/json')
 
 
+@app.route('/query', methods=['GET'])
+def query_attributes():
+    qtype = request.args.get('type')
+    qimage = request.args.get('image')
+    qzone = request.args.get('zone')
+    reports = read_reports()
+    return_reports = []
+    for report in reports:
+        add_report = True
+        if qtype and not reports[report]['type'].startswith(qtype):
+            add_report = False
+        if qimage and not reports[report]['image_name'].startswith(qimage):
+            add_report = False
+        if qzone and not reports[report]['zone'].startswith(qzone):
+            add_report = False
+        if add_report:
+            return_reports.append(reports[report])
+    json_report = json.dumps(return_reports, sort_keys=True,
+                             indent=4, separators=(',', ': '))
+    return app.response_class(response=json_report,
+                              status=200, mimetype='application/json')
+    
+
 @app.route('/summary', methods=['GET'])
 def summary():
     reports = read_reports()
