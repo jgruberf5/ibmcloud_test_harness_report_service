@@ -280,21 +280,34 @@ def summary():
     num_running = len(running_reports)
     num_success = len(success_reports)
     num_failed = len(failed_reports)
+
+    success_avg_duration = 0
+    if len(success_reports) > 0:
+        success_avg_duration = success_durations / len(success_reports)
+
+    failed_avg_duration = 0
+    if len(failed_reports) > 0:
+        failed_avg_duration = failed_durations / len(failed_reports)
+
+    terraform_completed_avg = 0
+    if terraform_completed > 0:
+        terraform_completed_avg = terraform_completed_seconds / terraform_completed
+
     return_data = {
         'total_tests': total_reports,
         'running_tests': running_reports,
         'success_tests': num_success,
-        'success_avg_duration': success_durations / len(success_reports),
+        'success_avg_duration': success_avg_duration,
         'success_duration_min': success_duration_min,
         'success_duration_max': success_duration_max,
         'failed_tests': num_failed,
-        'failed_avg_duration': failed_durations / len(failed_reports),
+        'failed_avg_duration': failed_avg_duration,
         'failed_duration_min': failed_duration_min,
         'failed_duration_max': failed_duration_max,
         'failed_in_terraform': failed_in_terraform,
         'failed_by_timeout': failed_by_timeout,
         'terraform_completed': terraform_completed,
-        'terraform_completed_avg': terraform_completed_seconds / terraform_completed,
+        'terraform_completed_avg': terraform_completed_avg,
         'zones_summary': zones,
         'test_types': ttypes,
         'image_names': imagez
