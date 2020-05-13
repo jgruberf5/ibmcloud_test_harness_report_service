@@ -250,21 +250,27 @@ def summary():
             zones[report_zone] = {
                 'running': 0,
                 'success': 0,
-                'failed': 0
+                'failed': 0,
+                'terraform_failed': 0,
+                'percent_failure': 0
             }
         report_type = reports[report]['type']
         if report_type not in ttypes:
             ttypes[report_type] = {
                 'running': 0,
                 'success': 0,
-                'failed': 0
+                'failed': 0,
+                'terraform_failed': 0,
+                'percent_failure': 0
             }
         image_name = reports[report]['image_name']
         if image_name not in imagez:
             imagez[image_name] = {
                 'running': 0,
                 'success': 0,
-                'failed': 0
+                'failed': 0,
+                'terraform_failed': 0,
+                'percent_failure': 0
             }
         if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 0:
             terraform_completed = terraform_completed + 1
@@ -293,6 +299,9 @@ def summary():
             else:
                 if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] > 0:
                     failed_in_terraform = failed_in_terraform + 1
+                    zones[report_zone]['terraform_failed'] = zones[report_zone]['terraform_failed'] + 1
+                    ttypes[report_type]['terraform_failed'] = ttypes[report_type]['terraform_failed'] + 1
+                    imagez[image_name]['terraform_failed'] = imagez[image_name]['terraform_failed'] + 1
                 if 'test timedout' in reports[report]['results']:
                     failed_by_timeout = failed_by_timeout + 1
                 failed_reports.append(report)
@@ -305,6 +314,15 @@ def summary():
                     failed_duration_max = duration
                 if duration < failed_duration_min or failed_duration_min == 0:
                     failed_duration_min = duration
+            zones_complete = zones[report_zone]['success'] + zones[report_zone]['failed']
+            ttype_complete = ttypes[report_type]['success'] + ttypes[report_type]['failed']
+            imagez_complete = imagez[image_name]['success'] + imagez[image_name]['failed']
+            if zones_complete > 0:
+                zones[report_zone]['percent_failure'] = round((zones[report_zone]['failed'] / zones_complete) * 100, 2)
+            if ttype_complete > 0:
+                ttypes[report_type]['percent_failure'] = round((ttypes[report_type]['failed'] / ttype_complete) * 100, 2)
+            if imagez_complete > 0:
+                imagez[image_name]['percent_failure'] = round((imagez[image_name]['failed'] / imagez_complete) * 100, 2)
     total_reports = len(reports)
     num_running = len(running_reports)
     num_success = len(success_reports)
@@ -312,27 +330,27 @@ def summary():
 
     success_avg_duration = 0
     if len(success_reports) > 0:
-        success_avg_duration = success_durations / len(success_reports)
+        success_avg_duration = round(success_durations / len(success_reports), 2)
 
     failed_avg_duration = 0
     if len(failed_reports) > 0:
-        failed_avg_duration = failed_durations / len(failed_reports)
+        failed_avg_duration = round(failed_durations / len(failed_reports), 2)
 
     terraform_completed_avg = 0
     if terraform_completed > 0:
-        terraform_completed_avg = terraform_completed_seconds / terraform_completed
+        terraform_completed_avg = round(terraform_completed_seconds / terraform_completed, 2)
 
     return_data = {
         'total_tests': total_reports,
         'running_tests': running_reports,
         'success_tests': num_success,
         'success_avg_duration': success_avg_duration,
-        'success_duration_min': success_duration_min,
-        'success_duration_max': success_duration_max,
+        'success_duration_min': round(success_duration_min, 2),
+        'success_duration_max': round(success_duration_max, 2),
         'failed_tests': num_failed,
         'failed_avg_duration': failed_avg_duration,
-        'failed_duration_min': failed_duration_min,
-        'failed_duration_max': failed_duration_max,
+        'failed_duration_min': round(failed_duration_min, 2),
+        'failed_duration_max': round(failed_duration_max, 2),
         'failed_in_terraform': failed_in_terraform,
         'failed_by_timeout': failed_by_timeout,
         'terraform_completed': terraform_completed,
