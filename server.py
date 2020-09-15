@@ -35,7 +35,11 @@ def read_reports():
     if os.path.exists(REPORT_FILE):
         with open(REPORT_FILE, 'r') as reports_file:
             json_reports = reports_file.read()
-            return json.loads(json_reports)
+            try:
+                return json.loads(json_reports)
+            except json.JSONDecodeError as je:
+                time.sleep(2)
+                return read_reports()
     else:
         return {}
 
