@@ -248,12 +248,16 @@ def summary():
     failed_by_timeout = 0
     workspace_create_completed = 0
     workspace_create_completed_seconds = 0
+    workspace_create_failed = 0
     terraform_plan_completed = 0
     terraform_plan_seconds = 0
+    terraform_plan_failed = 0
     terraform_apply_completed = 0
     terraform_apply_seconds = 0
+    terraform_apply_failed = 0
     terraform_destroy_completed = 0
     terraform_destroy_seconds = 0
+    terraform_destroy_failed = 0
     terraform_completed = 0
     terraform_completed_seconds = 0
     for report in reports:
@@ -288,18 +292,26 @@ def summary():
             workspace_create_completed = workspace_create_completed + 1
             workspace_create_completed_seconds = workspace_create_completed_seconds + \
                 reports[report]['workspace_create_duration']
+        if 'workspace_create_result_code' in reports[report] and reports[report]['workspace_create_result_code'] == 1:
+            workspace_create_failed = workspace_create_failed + 1
         if 'terraform_plan_result_code' in reports[report] and reports[report]['terraform_plan_result_code'] == 0:
             terraform_plan_completed = terraform_plan_completed + 1
             terraform_plan_seconds = terraform_plan_seconds + \
                 reports[report]['terraform_plan_duration']
+        if 'terraform_plan_result_code' in reports[report] and reports[report]['terraform_plan_result_code'] == 1:
+            terraform_plan_failed = terraform_plan_failed + 1
         if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 0:
             terraform_apply_completed = terraform_apply_completed + 1
             terraform_apply_seconds = terraform_apply_seconds + \
                 reports[report]['terraform_apply_duration']
+        if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 1:
+            terraform_apply_failed = terraform_apply_failed + 1
         if 'terraform_destroy_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 0:
-            terraform_destroy_completed = terraform_apply_completed + 1
+            terraform_destroy_completed = terraform_destroy_completed + 1
             terraform_destroy_seconds = terraform_destroy_seconds + \
                 reports[report]['terraform_destroy_duration']
+        if 'terraform_destroy_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 1:
+            terraform_destroy_failed = terraform_destroy_failed + 1
         if 'terraform_result_code' in reports[report] and reports[report]['terraform_result_code'] == 0:
             terraform_completed = terraform_completed + 1
             terraform_seconds = reports[report]['terraform_apply_stop'] - \
@@ -415,12 +427,16 @@ def summary():
         'terraform_completed_avg': terraform_completed_avg,
         'workspace_create_completed': workspace_create_completed,
         'workspace_create_completed_avg': workspace_create_completed_avg,
+        'workspace_create_failed': workspace_create_failed,
         'terraform_plan_completed': terraform_plan_completed,
         'terraform_plan_completed_avg': terraform_plan_completed_avg,
+        'terraform_plan_failed': terraform_plan_failed,
         'terraform_apply_completed': terraform_apply_completed,
         'terraform_apply_completed_avg': terraform_apply_completed_avg,
+        'terraform_apply_failed': terraform_apply_failed,
         'terraform_destroy_completed': terraform_destroy_completed,
         'terraform_destroy_completed_avg': terraform_destroy_completed_avg,
+        'terraform_destroy_failed': terraform_destroy_failed,
         'zones_summary': zones,
         'test_types': ttypes,
         'image_names': imagez
