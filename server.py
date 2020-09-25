@@ -227,7 +227,7 @@ def query_attributes():
                              indent=4, separators=(',', ': '))
     return app.response_class(response=json_report,
                               status=200, mimetype='application/json')
-    
+
 
 @app.route('/summary', methods=['GET'])
 def summary():
@@ -246,6 +246,14 @@ def summary():
     failed_duration_max = 0
     failed_in_terraform = 0
     failed_by_timeout = 0
+    workstation_create_comepleted = 0
+    workstation_create_completed_seconds = 0
+    terraform_plan_completed = 0
+    terraform_plan_seconds = 0
+    terraform_apply_completed = 0
+    terraform_apply_seconds = 0
+    terraform_destroy_completed = 0
+    terraform_destroy_seconds = 0
     terraform_completed = 0
     terraform_completed_seconds = 0
     for report in reports:
@@ -276,14 +284,33 @@ def summary():
                 'terraform_failed': 0,
                 'percent_failure': 0
             }
+        if 'workstaion_create_result_code' in reports[report] and reports[report]['workstation_create_result_code'] == 0:
+            workstation_create_completed = workstation_create_comepleted + 1
+            workstation_create_completed_seconds = workstation_create_completed_seconds + \
+                reports[report]['workstation_create_duration']
+        if 'terraform_plan_result_code' in reports[report] and reports[report]['terraform_plan_result_code'] == 0:
+            terraform_plan_completed = terraform_plan_completed + 1
+            terraform_plan_seconds = terraform_plan_seconds + \
+                reports[report]['terraform_plan_duration']
         if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 0:
+            terraform_apply_completed = terraform_apply_completed + 1
+            terraform_apply_seconds = terraform_apply_seconds + \
+                reports[report]['terraform_apply_duration']
+        if 'terraform_destroy_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] == 0:
+            terraform_destroy_completed = terraform_apply_completed + 1
+            terraform_destroy_seconds = terraform_destroy_seconds + \
+                reports[report]['terraform_destroy_duration']
+        if 'terraform_result_code' in reports[report] and reports[report]['terraform_result_code'] == 0:
             terraform_completed = terraform_completed + 1
-            terraform_seconds = reports[report]['terraform_apply_completed_at'] - reports[report]['start_time']
+            terraform_seconds = reports[report]['terraform_apply_stop'] - \
+                reports[report]['start_time']
             terraform_completed_seconds = terraform_completed_seconds + terraform_seconds
+
         if reports[report]['duration'] == 0:
             now = datetime.datetime.utcnow()
             duration = int(now.timestamp() - reports[report]['start_time'])
-            running_reports.append("%s - %s seconds - %s - %s" % (report, str(duration), reports[report]['type'], reports[report]['zone']))
+            running_reports.append("%s - %s seconds - %s - %s" % (report, str(
+                duration), reports[report]['type'], reports[report]['zone']))
             zones[report_zone]['running'] = zones[report_zone]['running'] + 1
             ttypes[report_type]['running'] = ttypes[report_type]['running'] + 1
             imagez[image_name]['running'] = imagez[image_name]['running'] + 1
@@ -299,9 +326,8 @@ def summary():
                     success_duration_max = duration
                 if duration < success_duration_min or success_duration_min == 0:
                     success_duration_min = duration
-                
             else:
-                if 'terraform_apply_result_code' in reports[report] and reports[report]['terraform_apply_result_code'] > 0:
+                if 'terraform_result_code' in reports[report] and reports[report]['terraform_result_code'] > 0:
                     failed_in_terraform = failed_in_terraform + 1
                     zones[report_zone]['terraform_failed'] = zones[report_zone]['terraform_failed'] + 1
                     ttypes[report_type]['terraform_failed'] = ttypes[report_type]['terraform_failed'] + 1
@@ -318,15 +344,21 @@ def summary():
                     failed_duration_max = duration
                 if duration < failed_duration_min or failed_duration_min == 0:
                     failed_duration_min = duration
-            zones_complete = zones[report_zone]['success'] + zones[report_zone]['failed']
-            ttype_complete = ttypes[report_type]['success'] + ttypes[report_type]['failed']
-            imagez_complete = imagez[image_name]['success'] + imagez[image_name]['failed']
+            zones_complete = zones[report_zone]['success'] + \
+                zones[report_zone]['failed']
+            ttype_complete = ttypes[report_type]['success'] + \
+                ttypes[report_type]['failed']
+            imagez_complete = imagez[image_name]['success'] + \
+                imagez[image_name]['failed']
             if zones_complete > 0:
-                zones[report_zone]['percent_failure'] = round((zones[report_zone]['failed'] / zones_complete) * 100, 2)
+                zones[report_zone]['percent_failure'] = round(
+                    (zones[report_zone]['failed'] / zones_complete) * 100, 2)
             if ttype_complete > 0:
-                ttypes[report_type]['percent_failure'] = round((ttypes[report_type]['failed'] / ttype_complete) * 100, 2)
+                ttypes[report_type]['percent_failure'] = round(
+                    (ttypes[report_type]['failed'] / ttype_complete) * 100, 2)
             if imagez_complete > 0:
-                imagez[image_name]['percent_failure'] = round((imagez[image_name]['failed'] / imagez_complete) * 100, 2)
+                imagez[image_name]['percent_failure'] = round(
+                    (imagez[image_name]['failed'] / imagez_complete) * 100, 2)
     total_reports = len(reports)
     num_running = len(running_reports)
     num_success = len(success_reports)
@@ -334,7 +366,8 @@ def summary():
 
     success_avg_duration = 0
     if len(success_reports) > 0:
-        success_avg_duration = round(success_durations / len(success_reports), 2)
+        success_avg_duration = round(
+            success_durations / len(success_reports), 2)
 
     failed_avg_duration = 0
     if len(failed_reports) > 0:
@@ -342,7 +375,28 @@ def summary():
 
     terraform_completed_avg = 0
     if terraform_completed > 0:
-        terraform_completed_avg = round(terraform_completed_seconds / terraform_completed, 2)
+        terraform_completed_avg = round(
+            terraform_completed_seconds / terraform_completed, 2)
+
+    workstation_create_comepleted_avg = 0
+    if workstation_create_comepleted > 0:
+        workstation_create_comepleted_avg = round(
+            workstation_create_completed_seconds / workstation_create_comepleted, 2)
+
+    terraform_plan_completed_avg = 0
+    if terraform_plan_completed > 0:
+        terraform_plan_completed_avg = round(
+            terraform_plan_seconds / terraform_plan_completed, 2)
+
+    terraform_apply_completed_avg = 0
+    if terraform_apply_completed > 0:
+        terraform_apply_completed_avg = round(
+            terraform_apply_seconds / terraform_apply_completed, 2)
+
+    terraform_destroy_completed_avg = 0
+    if terraform_destroy_completed > 0:
+        terraform_destroy_completed_avg = round(
+            terraform_destroy_seconds / terraform_destroy_completed, 2)
 
     return_data = {
         'total_tests': total_reports,
@@ -359,6 +413,14 @@ def summary():
         'failed_by_timeout': failed_by_timeout,
         'terraform_completed': terraform_completed,
         'terraform_completed_avg': terraform_completed_avg,
+        'workspace_create_completed': workstation_create_comepleted,
+        'workspace_create_completed_avg': workstation_create_comepleted_avg,
+        'terraform_plan_completed': terraform_plan_completed,
+        'terraform_plan_completed_avg': terraform_plan_completed_avg,
+        'terraform_apply_completed': terraform_apply_completed,
+        'terraform_apply_completed_avg': terraform_apply_completed_avg,
+        'terraform_destroy_completed': terraform_destroy_completed,
+        'terraform_destroy_completed_avg': terraform_destroy_completed_avg,
         'zones_summary': zones,
         'test_types': ttypes,
         'image_names': imagez
