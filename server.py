@@ -246,7 +246,7 @@ def summary():
     failed_duration_max = 0
     failed_in_terraform = 0
     failed_by_timeout = 0
-    workspace_create_comepleted = 0
+    workspace_create_completed = 0
     workspace_create_completed_seconds = 0
     terraform_plan_completed = 0
     terraform_plan_seconds = 0
@@ -285,7 +285,7 @@ def summary():
                 'percent_failure': 0
             }
         if 'workspace_create_result_code' in reports[report] and reports[report]['workspace_create_result_code'] == 0:
-            workspace_create_completed = workspace_create_comepleted + 1
+            workspace_create_completed = workspace_create_completed + 1
             workspace_create_completed_seconds = workspace_create_completed_seconds + \
                 reports[report]['workspace_create_duration']
         if 'terraform_plan_result_code' in reports[report] and reports[report]['terraform_plan_result_code'] == 0:
@@ -379,9 +379,9 @@ def summary():
             terraform_completed_seconds / terraform_completed, 2)
 
     workspace_create_comepleted_avg = 0
-    if workspace_create_comepleted > 0:
+    if workspace_create_completed > 0:
         workspace_create_comepleted_avg = round(
-            workspace_create_completed_seconds / workspace_create_comepleted, 2)
+            workspace_create_completed_seconds / workspace_create_completed, 2)
 
     terraform_plan_completed_avg = 0
     if terraform_plan_completed > 0:
