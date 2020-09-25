@@ -246,8 +246,8 @@ def summary():
     failed_duration_max = 0
     failed_in_terraform = 0
     failed_by_timeout = 0
-    workstation_create_comepleted = 0
-    workstation_create_completed_seconds = 0
+    workspace_create_comepleted = 0
+    workspace_create_completed_seconds = 0
     terraform_plan_completed = 0
     terraform_plan_seconds = 0
     terraform_apply_completed = 0
@@ -284,10 +284,10 @@ def summary():
                 'terraform_failed': 0,
                 'percent_failure': 0
             }
-        if 'workstaion_create_result_code' in reports[report] and reports[report]['workstation_create_result_code'] == 0:
-            workstation_create_completed = workstation_create_comepleted + 1
-            workstation_create_completed_seconds = workstation_create_completed_seconds + \
-                reports[report]['workstation_create_duration']
+        if 'workspace_create_result_code' in reports[report] and reports[report]['workspace_create_result_code'] == 0:
+            workstation_create_completed = workspace_create_comepleted + 1
+            workspace_create_completed_seconds = workspace_create_completed_seconds + \
+                reports[report]['workspace_create_duration']
         if 'terraform_plan_result_code' in reports[report] and reports[report]['terraform_plan_result_code'] == 0:
             terraform_plan_completed = terraform_plan_completed + 1
             terraform_plan_seconds = terraform_plan_seconds + \
@@ -379,9 +379,9 @@ def summary():
             terraform_completed_seconds / terraform_completed, 2)
 
     workstation_create_comepleted_avg = 0
-    if workstation_create_comepleted > 0:
+    if workspace_create_comepleted > 0:
         workstation_create_comepleted_avg = round(
-            workstation_create_completed_seconds / workstation_create_comepleted, 2)
+            workspace_create_completed_seconds / workspace_create_comepleted, 2)
 
     terraform_plan_completed_avg = 0
     if terraform_plan_completed > 0:
@@ -413,7 +413,7 @@ def summary():
         'failed_by_timeout': failed_by_timeout,
         'terraform_completed': terraform_completed,
         'terraform_completed_avg': terraform_completed_avg,
-        'workspace_create_completed': workstation_create_comepleted,
+        'workspace_create_completed': workspace_create_comepleted,
         'workspace_create_completed_avg': workstation_create_comepleted_avg,
         'terraform_plan_completed': terraform_plan_completed,
         'terraform_plan_completed_avg': terraform_plan_completed_avg,
