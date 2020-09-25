@@ -378,9 +378,9 @@ def summary():
         terraform_completed_avg = round(
             terraform_completed_seconds / terraform_completed, 2)
 
-    workspace_create_comepleted_avg = 0
+    workspace_create_completed_avg = 0
     if workspace_create_completed > 0:
-        workspace_create_comepleted_avg = round(
+        workspace_create_completed_avg = round(
             workspace_create_completed_seconds / workspace_create_completed, 2)
 
     terraform_plan_completed_avg = 0
@@ -413,8 +413,8 @@ def summary():
         'failed_by_timeout': failed_by_timeout,
         'terraform_completed': terraform_completed,
         'terraform_completed_avg': terraform_completed_avg,
-        'workspace_create_completed': workspace_create_comepleted,
-        'workspace_create_completed_avg': workspace_create_comepleted_avg,
+        'workspace_create_completed': workspace_create_completed,
+        'workspace_create_completed_avg': workspace_create_completed_avg,
         'terraform_plan_completed': terraform_plan_completed,
         'terraform_plan_completed_avg': terraform_plan_completed_avg,
         'terraform_apply_completed': terraform_apply_completed,
