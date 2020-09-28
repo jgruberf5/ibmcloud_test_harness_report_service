@@ -33,22 +33,24 @@ app = Flask(__name__)
 
 def read_reports():
     if os.path.exists(REPORT_FILE):
-        with open(REPORT_FILE, 'r') as reports_file:
-            json_reports = reports_file.read()
-            try:
-                return json.loads(json_reports)
-            except json.JSONDecodeError as je:
-                time.sleep(2)
-                return read_reports()
+        with FileLock(LOCK_FILE):
+            with open(REPORT_FILE, 'r') as reports_file:
+                json_reports = reports_file.read()
+                try:
+                    return json.loads(json_reports)
+                except json.JSONDecodeError as je:
+                    time.sleep(2)
+        return read_reports()
     else:
         return {}
 
 
 def read_reports_json():
     if os.path.exists(REPORT_FILE):
-        with open(REPORT_FILE, 'r') as reports_file:
-            reports_json = reports_file.read()
-            return reports_json
+        with FileLock(LOCK_FILE):
+            with open(REPORT_FILE, 'r') as reports_file:
+                reports_json = reports_file.read()
+                return reports_json
     else:
         return "{}"
 
@@ -249,15 +251,19 @@ def summary():
     workspace_create_completed = 0
     workspace_create_completed_seconds = 0
     workspace_create_failed = 0
+    workspace_create_failed_seconds = 0
     terraform_plan_completed = 0
     terraform_plan_seconds = 0
     terraform_plan_failed = 0
+    terraform_plan_failed_seconds = 0
     terraform_apply_completed = 0
     terraform_apply_seconds = 0
     terraform_apply_failed = 0
+    terraform_apply_failed_seconds = 0
     terraform_destroy_completed = 0
     terraform_destroy_seconds = 0
     terraform_destroy_failed = 0
+    terraform_destroy_failed_seconds = 0
     terraform_completed = 0
     terraform_completed_seconds = 0
     for report in reports:
